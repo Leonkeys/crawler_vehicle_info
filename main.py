@@ -139,12 +139,9 @@ class Parse:
             exemption_from_inspection, end_exemption_from_inspection, announcement_state, announcement_start,
             announcement_describe, change_detail, overall_dimensions, box_size, total_weight, load_factor, weight,
             max_weight, trailer_quality, trailer_saddle, cab, front_p, max_p, abs, min_angle, suspension, axle_load,
-            axle_m,
-            axle_count, max_speed, fuel_consumption, leaves, tire_count, tire_type, front_tire_m, backend_tire_m,
-            stop_s,
-            stop_e, start_s, start_e, turning_form, starting_func, tra_from, fuel_100km, vin_code, engine, engine_manu,
-            ml,
-            kw
+            axle_m, axle_count, max_speed, fuel_consumption, leaves, tire_count, tire_type, front_tire_m, 
+            backend_tire_m, stop_s, stop_e, start_s, start_e, turning_form, starting_func, tra_from, fuel_100km, 
+            vin_code, engine, engine_manu, ml, kw
         ]
 
     def _parse_xny(self, info):
@@ -173,8 +170,7 @@ class Parse:
             str.maketrans("", "", "\t\n\r"))  # 标识型号
         base_list.extend([
             new_energy_label, new_energy_type, motor_model, motor_power, fuel_type, accord_stand, chassis_standards,
-            other,
-            tag_enterprise, tag_t, tag_type
+            other, tag_enterprise, tag_t, tag_type
         ])
         return base_list
 
@@ -206,7 +202,6 @@ class Parse:
         info = soup.find_all("td")
         if not info:
             return []
-
         if len(info) == 67:
             self._parse_67(info)
         try:
@@ -255,12 +250,10 @@ class Request:
                 code = line_list[0]
                 if not self.output_code_dict.get(code):
                     self.output_code_dict[code] = 1
-
         self.err_dir_path = f"./errput/{p}"
         if not os.path.exists(self.err_dir_path):
             os.makedirs(self.err_dir_path, exist_ok=True)
         self.err_file_obj = open(f"{self.err_dir_path}/errput.csv", "w")
-
         self.parse_obj = Parse()
 
     @property
@@ -276,7 +269,6 @@ class Request:
         return {
             "Accept": "application/x-json;text/x-json;charset=utf-8",
             "content-length": "263",
-
             "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
             # "Cookie": "PHPSESSID=qubiqrtbpf6dgkfdecqf0nm6l3; Hm_lvt_cc445dd3b46e707b46ac35bb1bd65a6e=1724825474; HMACCOUNT=68F119482F32A54E; rel_search=1; X_CACHE_KEY=03504fb3544920d577d9bd89571471e5; Hm_lpvt_cc445dd3b46e707b46ac35bb1bd65a6e=1724825486",
             "Cookie": "X_CACHE_KEY=ee2ef84a670b2ea5bde796d31c1a7ee0; Hm_lvt_ce1c0baf87d906eb8ded77cbf43c0189=1745829487,1745896146,1747357945,1747806565; Hm_lpvt_ce1c0baf87d906eb8ded77cbf43c0189=1747806565; HMACCOUNT=E8339C72CC83DC65; Hm_lvt_73925f98237f944037d3cfecb00763f0=1745829487,1745896146,1747357945,1747806565; PHPSESSID=2m6jpg187b6ahnvnnlinr55r26; rel_search=1; clcp_list=645227%7C644413%7C644372%7C644324%7C644278%7C644226%7C644192%7C644147%7C644112%7C644048%7C644037%7C644024%7C; Hm_lpvt_73925f98237f944037d3cfecb00763f0=1748333730",
@@ -311,7 +303,6 @@ class Request:
         return param
 
     def _get_proxy(self, n):
-
         res = []
         try:
             if not self.proxy_dict:
@@ -356,7 +347,6 @@ class Request:
                     break
             else:
                 return False
-
         int_n_str = str(int(n * 1000))
         i = index % len(proxy_list)
         proxy_ip = proxy_list[i]
@@ -372,7 +362,6 @@ class Request:
             "https": f"https://{user_name}:{password}@{ip}:{port}"
         }
         try:
-            print(self.list_url + f"?_dc={int_n_str}", param)
             res = requests.post(
                 self.list_url + f"?_dc={int_n_str}",
                 data=param,
@@ -380,7 +369,6 @@ class Request:
                 proxies=proxies
             )
             res_json = ast.literal_eval(res.text)
-            # print(res_json)
             if res.status_code == 200 and res_json.get("success") == "true":
                 return res_json
             elif res.status_code == 200 and res_json.get("success") == "false":
@@ -397,7 +385,6 @@ class Request:
     def proxy_request_list_gt_15000(self):
         car_type = ["柴", "电", "汽", "氢", "甲", "G", "燃"]
         axle_list = ["2", "3", "4", "5", "6", "7", "8", "9", "10"]
-
         index = 1
         for ct in car_type:
             for axle in axle_list:
@@ -484,18 +471,15 @@ class Request:
         port = proxy_ip_list[1]
         user_name = proxy_ip_list[2]
         password = proxy_ip_list[3]
-
         proxies = {
             "http": f"http://{user_name}:{password}@{ip}:{port}/",
-            "https": f"http://{user_name}:{password}@{ip}:{port}/"
+            "https": f"https://{user_name}:{password}@{ip}:{port}/"
         }
         try:
-            print("11")
             response = requests.get(url,
                                     headers=header,
                                     proxies=proxies
                                     )
-            print(response)
             if response.status_code == 200 and response.text:
                 if self.parse_obj.parse_main(response.text):
                     return response
@@ -503,7 +487,6 @@ class Request:
                     return False
             elif response.status_code == 200 and not response.text:
                 logging.info("err")
-
             else:
                 return False
         except:
@@ -512,7 +495,6 @@ class Request:
     def proxy_request_detail(self, code, index):
         url = self.detail_url + code
         header = self._get_detail_header(code)
-        print(url)
         detail_response = self._proxy_request_detail(url, header, index)
         if isinstance(detail_response, bool):
             for i in range(10):
@@ -561,7 +543,6 @@ class Request:
         all_entries = [entry for entry in os.listdir(self.base_path) if
                        os.path.isdir(os.path.join(self.base_path, entry))]
         all_entries.sort(key=lambda x: os.path.getmtime(os.path.join(self.base_path, x)), reverse=True)
-
         if float(all_entries[1]) <= float(self.p):
             return False
         return True
@@ -579,7 +560,6 @@ def main(p):
 
 
 if __name__ == '__main__':
-
     pc = [
         "300", "299", "298", "297", "296", "295", "294", "293", "292", "291",
         "290", "289", "288", "287", "286", "285", "284", "283", "282", "281",
@@ -614,6 +594,6 @@ if __name__ == '__main__':
     ]
     for i in pc:
         logging.info(f"start pc : {i}")
-        print(i)
         main(i)
         time.sleep(3)
+
